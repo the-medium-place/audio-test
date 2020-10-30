@@ -1,0 +1,42 @@
+body {
+    display: flex;
+    flex-direction: column;
+}
+
+input[type="range"] {
+    width: 28rem;
+    position: absolute;
+    left: -25rem;
+ }
+
+ .btn-box {
+     display: flex;
+     margin: 0 auto;
+     margin-bottom: 20px;
+ }
+
+ .spacer {
+     height: 200px;
+ 
+ }
+
+ .slider-box {
+     transform: rotate(270deg);
+     width: 14.28%;
+ }
+
+ .hz {
+     margin: 0 auto;
+     font-size: 2rem;
+ }
+
+ .hz-box {
+     width: 14.28%;
+ }
+
+ .slider-wrapper, .slider-labels {
+     display: flex;
+     justify-content: space-between;
+     margin: 0 auto;
+     height: auto;
+ }
