@@ -2,8 +2,6 @@ const recBtn = $("#record-btn");
 const stopBtn = $("#stop-btn");
 const playBtn = $('#play-btn');
 const timer = $('#time-disp');
-// const slider = document.q.valueuerySelectorAll(".eq-slider");
-const output = $('#output');
 
 // EQ SLIDERS
 const hz125 = $("#hz125");
@@ -29,13 +27,13 @@ const eqValsObj = {
 // LISTEN FOR CHANGES TO SLIDERS AND LOG RESULTING VALUE
 const sliderWrapper = $('.slider-wrapper')
 
-console.log(eqValsObj['hz125'])
-
 sliderWrapper.on("input", "input[type='range']", event => {
 
     eqValsObj[event.target.id] = parseInt(event.target.value);
     console.log("hopefully updated value:\n","==================")
     console.log('object value: ',eqValsObj[event.target.id])
+
+    $('.'+event.target.id).text(event.target.value + 'db');
 
 })
 
@@ -58,8 +56,6 @@ recBtn.on('click', () => {
 
             // AUDIO IS CAPTURED IN MULTIPLE 'CHUNKS'
             mediaRecorder.addEventListener("dataavailable", event => {
-                // console.log(event)
-                // timer.textContent = event.timeStamp / 1000;
                 // PUSH ALL AUDIO CHUNKS TO SINGLE ARRAY
                 audioChunks.push(event.data)
             })
