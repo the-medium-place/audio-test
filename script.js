@@ -21,7 +21,6 @@ const eqValsObj = {
     hz2000: 0,
     hz4000: 0,
     hz8000: 0
-
 }
 
 // LISTEN FOR CHANGES TO SLIDERS AND LOG RESULTING VALUE
@@ -87,7 +86,7 @@ recBtn.on('click', () => {
                 const filter5 = context.createBiquadFilter();
                 const filter6 = context.createBiquadFilter();
                 const filter7 = context.createBiquadFilter();
-
+                $('.rec-timer').text(context.currentTime)
 
                 // CONNECT FILTER TO AUDIO DATA
                 audioSource.connect(filter1);
@@ -105,42 +104,40 @@ recBtn.on('click', () => {
                 filter5.connect(context.destination);
                 filter6.connect(context.destination);
                 filter7.connect(context.destination);
-                console.log("filter before:\n", "====================")
-                console.log(filter1)
 
                 // CONFIGURE FILTER
                 // TODO: MULTIPLE FILTERS FOR MANY FREQUENCY RANGES?
-                filter1.type = 'notch';
+                filter1.type = 'peaking';
                 filter1.frequency.value = 125;
                 filter1.Q.value = 100;
                 filter1.gain.value = eqValsObj.hz125;
 
-                filter2.type = 'notch';
+                filter2.type = 'peaking';
                 filter2.frequency.value = 250;
                 filter2.Q.value = 100;
                 filter2.gain.value = eqValsObj.hz250;
 
-                filter3.type = 'notch';
+                filter3.type = 'peaking';
                 filter3.frequency.value = 500;
                 filter3.Q.value = 100;
                 filter3.gain.value = eqValsObj.hz500;
 
-                filter4.type = 'notch';
+                filter4.type = 'peaking';
                 filter4.frequency.value = 1000;
                 filter4.Q.value = 100;
                 filter4.gain.value = eqValsObj.hz1000;
 
-                filter5.type = 'notch';
+                filter5.type = 'peaking';
                 filter5.frequency.value = 2000;
                 filter5.Q.value = 100;
                 filter5.gain.value = eqValsObj.hz2000;
 
-                filter6.type = 'notch';
+                filter6.type = 'peaking';
                 filter6.frequency.value = 4000;
                 filter6.Q.value = 100;
                 filter6.gain.value = eqValsObj.hz4000;
 
-                filter7.type = 'notch';
+                filter7.type = 'peaking';
                 filter7.frequency.value = 8000;
                 filter7.Q.value = 100;
                 filter7.gain.value = eqValsObj.hz8000;
