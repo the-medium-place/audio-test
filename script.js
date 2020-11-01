@@ -14,13 +14,22 @@ const eqValsObj = {
 }
 
 // LISTEN FOR CHANGES TO SLIDERS AND LOG RESULTING VALUE
+// =====================================================
+
 const sliderWrapper = $('.slider-wrapper')
+// capture each individual slider and organize by connected dataset index no.
+const sliderIndex0 = $('#hz125');
+const sliderIndex1 = $('#hz250');
+const sliderIndex2 = $('#hz500');
+const sliderIndex3 = $('#hz1000');
+const sliderIndex4 = $('#hz2000');
+const sliderIndex5 = $('#hz4000');
+const sliderIndex6 = $('#hz8000');
 
 sliderWrapper.on("input", "input[type='range']", event => {
 
     eqValsObj[event.target.id] = parseInt(event.target.value);
-    // console.log("hopefully updated value:\n", "==================")
-    // console.log('object value: ', eqValsObj[event.target.id])
+
     console.log("testing data attribute output: \n", "====================");
     console.log(event.target.dataset.hertz)
 
@@ -216,13 +225,6 @@ var chart = new Chart(ctx, {
                     stepSize: 5,
                     reverse: true,
                     callback: function (value, index, values) {
-                        //TODO: FIND A WAY TO ADD 25db LINE AND 
-                        //TODO: MAKE IT BOLD PLUS ADJUST ITS 
-                        //TODO: PADDING TO SIT BETWEEN NEXT AND PREV LINE
-                        //===============================================
-                        // add line and label value for 25db
-                        // if (index === 0) values.splice(4, 0, '25')
-                        // if (value === '25') this.major = {enabled:true}
                         const vals = [-10, 0, 10, 20, 25, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120]
                         if (vals.includes(value)) return value + 'db';
 
@@ -233,35 +235,78 @@ var chart = new Chart(ctx, {
         dragData: true,
         dragDataRound: 0,
         dragOptions: {
-          showTooltip: true
+            showTooltip: true
         },
-        onDragStart: function(e) {
-          // console.log(e)
+        onDragStart: function (e) {
+            //   console.log(e)
         },
-        onDrag: function(e, datasetIndex, index, value) {
-          e.target.style.cursor = 'grabbing'
-          // console.log(datasetIndex, index, value)
+        onDrag: (e, datasetIndex, index, value) => {
+            e.target.style.cursor = 'grabbing'
+
+            //CAPTURE VALUE OF DRAGGED ELEMENT, INJECT IT INTO THE SLIDERS
+
+            const rightDatasetValAtIndex = chart.data.datasets[0].data[index];
+            const leftDatasetValAtIndex = chart.data.datasets[1].data[index];
+            let avgVal;
+            if (leftDatasetValAtIndex && rightDatasetValAtIndex) {
+                avgVal = (leftDatasetValAtIndex + rightDatasetValAtIndex) / 2 // average of two values at single hz level
+            }
+
+            switch (index) {
+                case 0:
+                    sliderIndex0.val(avgVal)
+                    break;
+                case 1:
+                    sliderIndex1.val(avgVal)
+                    break;
+                case 2:
+                    sliderIndex2.val(avgVal)
+                    break;
+                case 3:
+                    sliderIndex3.val(avgVal)
+                    break;
+                case 4:
+                    sliderIndex4.val(avgVal)
+                    break;
+                case 5:
+                    sliderIndex5.val(avgVal)
+                    break;
+                case 6: 
+                    sliderIndex6.val(avgVal)
+                    break;
+                default: 
+                    break;
+            }
+            //   console.log(datasetIndex, index, value)
         },
-        onDragEnd: function(e, datasetIndex, index, value) {
-          e.target.style.cursor = 'default' 
-          // console.log(datasetIndex, index, value)
+        onDragEnd: function (e, datasetIndex, index, value) {
+            e.target.style.cursor = 'default'
+            //   console.log(datasetIndex, index, value)
+            // console.log(value);
         },
         hover: {
-          onHover: function(e) {
-            const point = this.getElementAtEvent(e)
-            if (point.length) e.target.style.cursor = 'grab'
-            else e.target.style.cursor = 'default'
-          }
+            onHover: function (e) {
+                const point = this.getElementAtEvent(e)
+                if (point.length) e.target.style.cursor = 'grab'
+                else e.target.style.cursor = 'default'
+            }
         }
 
     }
 });
 
-const actButtonWrapper = $('.act-wrapper');
 
+// ACTIVATION BUTTON TO CREATE RANDOM DATAPOINT AT SET HZ LEVEL
+const actButtonWrapper = $('.act-wrapper');
 actButtonWrapper.on('click', '.act-btn', event => {
-    console.log(event.target.dataset.hertz);
-    event.target.dataset.ear === 'left' ? chart.data.datasets[1].data.splice(event.target.dataset.index, 1, Math.floor(Math.random() * 129 - 10)) : chart.data.datasets[0].data.splice(event.target.dataset.index, 1, Math.floor(Math.random() * 129 - 10));
+    // console.log(event.target.dataset.hertz);
+    const leftEarDatasetArr = chart.data.datasets[1].data;
+    const rightEarDatasetArr = chart.data.datasets[0].data;
+    const randomNum = Math.floor(Math.random() * 130 - 10);
+    const dataIndex = event.target.dataset.index;
+    const dataEar = event.target.dataset.ear
+
+    dataEar === 'left' ? leftEarDatasetArr.splice(dataIndex, 1, randomNum) : rightEarDatasetArr.splice(dataIndex, 1, randomNum);
 
     chart.update();
 })
