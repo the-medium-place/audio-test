@@ -13,9 +13,11 @@ const eqValsObj = {
     hz8000: 0
 }
 
-$('#myModal').on('shown.bs.modal', function () {
-    $('#myInput').trigger('focus')
-  })
+//
+// $('#myModal').on('shown.bs.modal', function () {
+//     $('#myInput').trigger('focus')
+//   })
+
 
 // LISTEN FOR CHANGES TO SLIDERS AND LOG RESULTING VALUE
 // =====================================================
@@ -366,6 +368,16 @@ const chart = new Chart(ctx, {
 
     }
 });
+
+// MODAL CLEAR BUTTON
+// ==================
+$('#clear-btn').on('click', () => {
+    chart.data.datasets.forEach(dataset => {
+        dataset.data = [null, null, null, null, null, null, null]
+    })
+
+    chart.update()
+})
 
 // ACTIVATION BUTTON TO CREATE RANDOM DATAPOINT AT SET HZ LEVEL
 // ============================================================
