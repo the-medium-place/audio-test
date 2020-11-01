@@ -13,9 +13,12 @@ const eqValsObj = {
     hz8000: 0
 }
 
+$('#myModal').on('shown.bs.modal', function () {
+    $('#myInput').trigger('focus')
+  })
+
 // LISTEN FOR CHANGES TO SLIDERS AND LOG RESULTING VALUE
 // =====================================================
-
 const sliderWrapper = $('.slider-wrapper')
 // capture each individual slider and organize by connected dataset index no.
 const sliderIndex0 = $('#hz125');
@@ -26,6 +29,8 @@ const sliderIndex4 = $('#hz2000');
 const sliderIndex5 = $('#hz4000');
 const sliderIndex6 = $('#hz8000');
 
+// ADJUST FILTER VALUES USING SLIDERS
+// ==================================
 sliderWrapper.on("input", "input[type='range']", event => {
 
     eqValsObj[event.target.id] = parseInt(event.target.value);
@@ -37,10 +42,8 @@ sliderWrapper.on("input", "input[type='range']", event => {
 
 })
 
-
-
-
 // USER CLICKS RECORD BUTTON
+// =========================
 recBtn.on('click', () => {
     console.log(eqValsObj);
     // CAPTURE MICROPHONE INPUT
@@ -80,6 +83,54 @@ recBtn.on('click', () => {
                 // CREATE AUDIO PROCESSING CONTEXT AND FILTERS
                 const context = new AudioContext();
                 const audioSource = context.createMediaElementSource(audio);
+                const analyser = context.createAnalyser();
+
+                analyser.fftSize = 2048;
+                const bufferLength = analyser.frequencyBinCount;
+                const dataArray = new Uint8Array(bufferLength);
+                analyser.getByteTimeDomainData(dataArray)
+
+                // GET CANVAS FOR ISCILLOSCOPE
+                const canvas = document.getElementById('oscilloscope');
+                const canvasCtx = canvas.getContext("2d");
+
+                // draw an oscilloscope of the current audio source
+
+                // function draw() {
+
+                //     requestAnimationFrame(draw);
+
+                //     analyser.getByteTimeDomainData(dataArray);
+
+                //     canvasCtx.fillStyle = "rgb(200, 200, 200)";
+                //     canvasCtx.fillRect(0, 0, canvas.width, canvas.height);
+
+                //     canvasCtx.lineWidth = 2;
+                //     canvasCtx.strokeStyle = "red";
+
+                //     canvasCtx.beginPath();
+
+                //     var sliceWidth = canvas.width * 1.0 / bufferLength;
+                //     var x = 0;
+
+                //     for (var i = 0; i < bufferLength; i++) {
+
+                //         var v = dataArray[i] / 128.0;
+                //         var y = v * canvas.height / 2;
+
+                //         if (i === 0) {
+                //             canvasCtx.moveTo(x, y);
+                //         } else {
+                //             canvasCtx.lineTo(x, y);
+                //         }
+
+                //         x += sliceWidth;
+                //     }
+
+                //     canvasCtx.lineTo(canvas.width, canvas.height / 2);
+                //     canvasCtx.stroke();
+                // }
+
                 const filter1 = context.createBiquadFilter();
                 const filter2 = context.createBiquadFilter();
                 const filter3 = context.createBiquadFilter();
@@ -143,6 +194,7 @@ recBtn.on('click', () => {
 
                 console.log("filter after:/n", "=======================");
                 console.log(filter1, filter2, filter7);
+                // draw();
 
             })
 
@@ -154,9 +206,9 @@ recBtn.on('click', () => {
 })
 
 // CHARTJS SETUP
-
-var ctx = document.getElementById('myChart').getContext('2d');
-var chart = new Chart(ctx, {
+// =============
+const ctx = document.getElementById('myChart').getContext('2d');
+const chart = new Chart(ctx, {
     // The type of chart we want to create
     type: 'line',
 
@@ -253,48 +305,48 @@ var chart = new Chart(ctx, {
 
             switch (index) {
                 case 0:
-                    sliderIndex0.val((-avgVal)+25)
+                    sliderIndex0.val((-avgVal) + 25)
                     eqValsObj.hz125 = (-avgVal) + 25
                     $('.hz125').text((-avgVal) + 25 + 'db')
 
                     break;
                 case 1:
-                    sliderIndex1.val((-avgVal)+25)
+                    sliderIndex1.val((-avgVal) + 25)
                     eqValsObj.hz250 = (-avgVal) + 25
                     $('.hz250').text((-avgVal) + 25 + 'db')
 
                     break;
                 case 2:
-                    sliderIndex2.val((-avgVal)+25)
+                    sliderIndex2.val((-avgVal) + 25)
                     eqValsObj.hz500 = (-avgVal) + 25
                     $('.hz500').text((-avgVal) + 25 + 'db')
 
                     break;
                 case 3:
-                    sliderIndex3.val((-avgVal)+25)
+                    sliderIndex3.val((-avgVal) + 25)
                     eqValsObj.hz1000 = (-avgVal) + 25
                     $('.hz1000').text((-avgVal) + 25 + 'db')
 
                     break;
                 case 4:
-                    sliderIndex4.val((-avgVal)+25)
+                    sliderIndex4.val((-avgVal) + 25)
                     eqValsObj.hz2000 = (-avgVal) + 25
                     $('.hz2000').text((-avgVal) + 25 + 'db')
 
                     break;
                 case 5:
-                    sliderIndex5.val((-avgVal)+25)
+                    sliderIndex5.val((-avgVal) + 25)
                     eqValsObj.hz4000 = (-avgVal) + 25
                     $('.hz4000').text((-avgVal) + 25 + 'db')
 
                     break;
-                case 6: 
-                    sliderIndex6.val((-avgVal)+25)
+                case 6:
+                    sliderIndex6.val((-avgVal) + 25)
                     eqValsObj.hz8000 = (-avgVal) + 25
                     $('.hz8000').text((-avgVal) + 25 + 'db')
 
                     break;
-                default: 
+                default:
                     break;
             }
             //   console.log(datasetIndex, index, value)
@@ -315,8 +367,8 @@ var chart = new Chart(ctx, {
     }
 });
 
-
 // ACTIVATION BUTTON TO CREATE RANDOM DATAPOINT AT SET HZ LEVEL
+// ============================================================
 const actButtonWrapper = $('.act-wrapper');
 actButtonWrapper.on('click', '.act-btn', event => {
     // console.log(event.target.dataset.hertz);
