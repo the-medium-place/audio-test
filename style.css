@@ -11,6 +11,7 @@ input[type="range"] {
 
 .jumbotron {
     overflow: scroll;
+    max-height: 30vh;
 }
 
  .btn-box {

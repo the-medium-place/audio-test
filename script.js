@@ -77,7 +77,7 @@ recBtn.on('click', () => {
                 // CREATE AUDIO OBJECT FROM CAPTURED BLOBS
                 audio = new Audio(audioURL);
 
-                // CREATE AUDIO PROCESSING CONTEXT AND FILTER
+                // CREATE AUDIO PROCESSING CONTEXT AND FILTERS
                 const context = new AudioContext();
                 const audioSource = context.createMediaElementSource(audio);
                 const filter1 = context.createBiquadFilter();
@@ -88,7 +88,7 @@ recBtn.on('click', () => {
                 const filter6 = context.createBiquadFilter();
                 const filter7 = context.createBiquadFilter();
 
-                // CONNECT FILTER TO AUDIO DATA
+                // CONNECT FILTERS TO AUDIO DATA
                 audioSource.connect(filter1);
                 audioSource.connect(filter2);
                 audioSource.connect(filter3);
@@ -105,8 +105,7 @@ recBtn.on('click', () => {
                 filter6.connect(context.destination);
                 filter7.connect(context.destination);
 
-                // CONFIGURE FILTER
-                // TODO: MULTIPLE FILTERS FOR MANY FREQUENCY RANGES?
+                // CONFIGURE FILTERS
                 filter1.type = 'peaking';
                 filter1.frequency.value = 125;
                 filter1.Q.value = 100;
@@ -249,30 +248,51 @@ var chart = new Chart(ctx, {
             const leftDatasetValAtIndex = chart.data.datasets[1].data[index];
             let avgVal;
             if (leftDatasetValAtIndex && rightDatasetValAtIndex) {
-                avgVal = (leftDatasetValAtIndex + rightDatasetValAtIndex) / 2 // average of two values at single hz level
+                avgVal = Math.round((leftDatasetValAtIndex + rightDatasetValAtIndex) / 2) // average of two values at single hz level
             }
 
             switch (index) {
                 case 0:
-                    sliderIndex0.val(avgVal)
+                    sliderIndex0.val((-avgVal)+25)
+                    eqValsObj.hz125 = (-avgVal) + 25
+                    $('.hz125').text((-avgVal) + 25 + 'db')
+
                     break;
                 case 1:
-                    sliderIndex1.val(avgVal)
+                    sliderIndex1.val((-avgVal)+25)
+                    eqValsObj.hz250 = (-avgVal) + 25
+                    $('.hz250').text((-avgVal) + 25 + 'db')
+
                     break;
                 case 2:
-                    sliderIndex2.val(avgVal)
+                    sliderIndex2.val((-avgVal)+25)
+                    eqValsObj.hz500 = (-avgVal) + 25
+                    $('.hz500').text((-avgVal) + 25 + 'db')
+
                     break;
                 case 3:
-                    sliderIndex3.val(avgVal)
+                    sliderIndex3.val((-avgVal)+25)
+                    eqValsObj.hz1000 = (-avgVal) + 25
+                    $('.hz1000').text((-avgVal) + 25 + 'db')
+
                     break;
                 case 4:
-                    sliderIndex4.val(avgVal)
+                    sliderIndex4.val((-avgVal)+25)
+                    eqValsObj.hz2000 = (-avgVal) + 25
+                    $('.hz2000').text((-avgVal) + 25 + 'db')
+
                     break;
                 case 5:
-                    sliderIndex5.val(avgVal)
+                    sliderIndex5.val((-avgVal)+25)
+                    eqValsObj.hz4000 = (-avgVal) + 25
+                    $('.hz4000').text((-avgVal) + 25 + 'db')
+
                     break;
                 case 6: 
-                    sliderIndex6.val(avgVal)
+                    sliderIndex6.val((-avgVal)+25)
+                    eqValsObj.hz8000 = (-avgVal) + 25
+                    $('.hz8000').text((-avgVal) + 25 + 'db')
+
                     break;
                 default: 
                     break;
