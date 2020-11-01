@@ -1,16 +1,6 @@
 const recBtn = $("#record-btn");
 const stopBtn = $("#stop-btn");
 const playBtn = $('#play-btn');
-const timer = $('#time-disp');
-
-// EQ SLIDERS
-const hz125 = $("#hz125");
-const hz250 = $("#hz250");
-const hz500 = $("#hz500");
-const hz1000 = $("#hz1000");
-const hz2000 = $("#hz2000");
-const hz4000 = $("#hz4000");
-const hz8000 = $("#hz8000");
 
 // CREATE OBJECT TO HOUSE EQ VALUES
 const eqValsObj = {
@@ -29,10 +19,12 @@ const sliderWrapper = $('.slider-wrapper')
 sliderWrapper.on("input", "input[type='range']", event => {
 
     eqValsObj[event.target.id] = parseInt(event.target.value);
-    console.log("hopefully updated value:\n","==================")
-    console.log('object value: ',eqValsObj[event.target.id])
+    // console.log("hopefully updated value:\n", "==================")
+    // console.log('object value: ', eqValsObj[event.target.id])
+    console.log("testing data attribute output: \n", "====================");
+    console.log(event.target.dataset.hertz)
 
-    $('.'+event.target.id).text(event.target.value + 'db');
+    $('.' + event.target.id).text(event.target.value + 'db');
 
 })
 
@@ -86,7 +78,6 @@ recBtn.on('click', () => {
                 const filter5 = context.createBiquadFilter();
                 const filter6 = context.createBiquadFilter();
                 const filter7 = context.createBiquadFilter();
-                $('.rec-timer').text(context.currentTime)
 
                 // CONNECT FILTER TO AUDIO DATA
                 audioSource.connect(filter1);
@@ -154,7 +145,123 @@ recBtn.on('click', () => {
         })
 })
 
-// slider.oninput = function() {
-//     output.innerHTML = this.value;
-//   }
+// CHARTJS SETUP
 
+var ctx = document.getElementById('myChart').getContext('2d');
+var chart = new Chart(ctx, {
+    // The type of chart we want to create
+    type: 'line',
+
+    // The data for our dataset
+    data: {
+        labels: ['125hz', '250hz', '500hz', '1000hz', '2000hz', '4000hz', '8000hz'],
+        datasets: [
+            {
+                label: 'Right Ear',
+                // backgroundColor: 'transparent',
+                borderColor: 'red',
+                fill: false,
+                pointRadius: 10,
+                pointHoverRadius: 15,
+                data: [null, null, null, null, null, null, null],
+                pointStyle: 'circle',
+                lineTension: 0
+            },
+            {
+                label: 'Left Ear',
+                backgroundColor: 'transparent',
+                borderColor: 'blue',
+                data: [null, null, null, null, null, null, null],
+                pointRadius: 10,
+                pointHoverRadius: 15,
+                pointStyle: 'crossRot',
+                lineTension: 0
+            }
+        ]
+    },
+
+    // Configuration options go here
+    options: {
+        // TODO: IDEA: CAPTURE CLICK LOCATION ON CHART TO ADD NEW DATA TO DATASET ARRAY?
+        // =============================================================================
+        // onClick: function(element, dataAtClick){
+        //     console.log(element, dataAtClick);
+        //     let scaleRef,
+        //         valueX,
+        //         valueY;
+        //         console.log(this.scales.scaleKey);
+        //         // console.log(this.scales['x-axis-0'].longestTextCache.data['125hz'])
+        //     for (var scaleKey in this.scales) {
+        //         scaleRef = this.scales[scaleKey];
+        //         if (scaleRef.isHorizontal() && scaleKey == 'x-axis-1') {
+        //             valueX = scaleRef.getValueForPixel(element.offsetX);
+        //         } else if (scaleKey == 'y-axis-1') {
+        //             valueY = scaleRef.getValueForPixel(element.offsetY);
+        //         }
+        //     }
+        //     this.data.datasets.forEach((dataset) => {
+        //         dataset.data.push({
+        //             x: valueX,
+        //             y: valueY
+        //         });
+        //     });
+        //     this.update();
+        // },
+        responsive: true,
+        scales: {
+            yAxes: [{
+                ticks: {
+                    min: -10,
+                    max: 120,
+                    stepSize: 5,
+                    reverse: true,
+                    callback: function (value, index, values) {
+                        //TODO: FIND A WAY TO ADD 25db LINE AND 
+                        //TODO: MAKE IT BOLD PLUS ADJUST ITS 
+                        //TODO: PADDING TO SIT BETWEEN NEXT AND PREV LINE
+                        //===============================================
+                        // add line and label value for 25db
+                        // if (index === 0) values.splice(4, 0, '25')
+                        // if (value === '25') this.major = {enabled:true}
+                        const vals = [-10, 0, 10, 20, 25, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120]
+                        if (vals.includes(value)) return value + 'db';
+
+                    }
+                }
+            }]
+        },
+        dragData: true,
+        dragDataRound: 0,
+        dragOptions: {
+          showTooltip: true
+        },
+        onDragStart: function(e) {
+          // console.log(e)
+        },
+        onDrag: function(e, datasetIndex, index, value) {
+          e.target.style.cursor = 'grabbing'
+          // console.log(datasetIndex, index, value)
+        },
+        onDragEnd: function(e, datasetIndex, index, value) {
+          e.target.style.cursor = 'default' 
+          // console.log(datasetIndex, index, value)
+        },
+        hover: {
+          onHover: function(e) {
+            const point = this.getElementAtEvent(e)
+            if (point.length) e.target.style.cursor = 'grab'
+            else e.target.style.cursor = 'default'
+          }
+        }
+
+    }
+});
+
+const actButtonWrapper = $('.act-wrapper');
+
+actButtonWrapper.on('click', '.act-btn', event => {
+    console.log(event.target.dataset.hertz);
+    event.target.dataset.ear === 'left' ? chart.data.datasets[1].data.splice(event.target.dataset.index, 1, Math.floor(Math.random() * 129 - 10)) : chart.data.datasets[0].data.splice(event.target.dataset.index, 1, Math.floor(Math.random() * 129 - 10));
+
+    chart.update();
+})

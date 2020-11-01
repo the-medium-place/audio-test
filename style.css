@@ -9,6 +9,10 @@ input[type="range"] {
     left: -25rem;
  }
 
+.jumbotron {
+    overflow: scroll;
+}
+
  .btn-box {
      display: flex;
      margin: 0 auto;
@@ -36,7 +40,7 @@ input[type="range"] {
      font-weight: bold;
  }
 
- .hz-box {
+ .hz-box, .act-box {
      width: 14.28%;
  }
 
@@ -50,14 +54,27 @@ input[type="range"] {
      height: 1.3rem;
  }
 
+ #record-btn {
+     background: red;
+ }
+
+ #stop-btn {
+     background: blue;
+     color: azure;
+ }
+
+ #play-btn {
+     background: green;
+ }
+
  @media only screen and (max-width: 1000px) {
-    .hz, .val-output {
+    .hz, .val-output, .act-box {
         font-size: .9rem;
     }
  }
 
  @media only screen and (max-width: 1000px) {
-    .hz, .val-output {
+    .hz, .val-output, .act-box {
         font-size: .7rem;
     }
  }
