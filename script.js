@@ -93,8 +93,8 @@ recBtn.on('click', () => {
                 analyser.getByteTimeDomainData(dataArray)
 
                 // GET CANVAS FOR ISCILLOSCOPE
-                const canvas = document.getElementById('oscilloscope');
-                const canvasCtx = canvas.getContext("2d");
+                // const canvas = document.getElementById('oscilloscope');
+                // const canvasCtx = canvas.getContext("2d");
 
                 // draw an oscilloscope of the current audio source
 
@@ -220,7 +220,6 @@ const chart = new Chart(ctx, {
         datasets: [
             {
                 label: 'Right Ear',
-                // backgroundColor: 'transparent',
                 borderColor: 'red',
                 fill: false,
                 pointRadius: 10,
@@ -231,7 +230,7 @@ const chart = new Chart(ctx, {
             },
             {
                 label: 'Left Ear',
-                backgroundColor: 'transparent',
+                fill: false,
                 borderColor: 'blue',
                 data: [null, null, null, null, null, null, null],
                 pointRadius: 10,
@@ -244,6 +243,27 @@ const chart = new Chart(ctx, {
 
     // Configuration options go here
     options: {
+        // tooltips: {
+        //     callbacks: {
+        //         label: function(context) {
+        //             // var label = context["yLabel"] || '';
+        //             // return label + 'db';
+        //             // if (label) {
+        //             //     label += ': ';
+        //             // }
+        //             // if (!isNaN(context.dataPoint.y)) {
+        //             //     label += new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(context.dataPoint.y);
+        //             // }
+        //             // return label;
+        //         }
+        //     }
+        // },
+
+        legend: {
+            labels: {
+                usePointStyle: true,
+            }
+        },
         // TODO: IDEA: CAPTURE CLICK LOCATION ON CHART TO ADD NEW DATA TO DATASET ARRAY?
         // =============================================================================
         // onClick: function(element, dataAtClick){
@@ -372,13 +392,26 @@ const chart = new Chart(ctx, {
 // MODAL CLEAR BUTTON
 // ==================
 $('#clear-btn').on('click', () => {
+    // RESET DATA ARRAYS TO ALL 'null'
     chart.data.datasets.forEach(dataset => {
         dataset.data = [null, null, null, null, null, null, null]
     })
+    
+    // RESET eqValsObj VALUES TO 0
+    Object.keys(eqValsObj).forEach(key => eqValsObj[key] = 0)
+
+    // RESET SLIDER VALUES TO 0
+    sliderIndex0.val(0);
+    sliderIndex1.val(0);
+    sliderIndex2.val(0);
+    sliderIndex3.val(0);
+    sliderIndex4.val(0);
+    sliderIndex5.val(0);
+    sliderIndex6.val(0);
 
     chart.update()
 })
-
+// console.log($('.eq-slider'))
 // ACTIVATION BUTTON TO CREATE RANDOM DATAPOINT AT SET HZ LEVEL
 // ============================================================
 const actButtonWrapper = $('.act-wrapper');
