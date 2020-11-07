@@ -10,3 +10,9 @@ app logistics:
 - migrate app to React
 - set up database to hold user info and save user sound settings
 - 
+
+
+
+NOTES:
+===========================================================================
+Added screenshot of mock-audiologist report (taken from Praxis study guide), beginning of audiology/audio engineering research.

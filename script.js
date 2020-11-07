@@ -16,7 +16,6 @@ const eqValsObj = {
     hz8000: 0
 }
 
-
 // LISTEN TO EAR SELECTION BUTTONS TO FLIP THE SWITCH
 $("#l-ear-btn").on('click', event => {
     $("#l-ear-btn").css("background", "salmon");
@@ -31,13 +30,9 @@ $("#r-ear-btn").on('click', event => {
     earClick=true;
 })
 
-// LISTEN FOR CHANGES TO SLIDERS AND LOG RESULTING VALUE
-// =====================================================
-const sliderWrapper = $('.slider-wrapper')
-
 // ADJUST FILTER VALUES USING SLIDERS
 // ==================================
-sliderWrapper.on("input", "input[type='range']", event => {
+$('.slider-wrapper').on("input", "input[type='range']", event => {
 
     eqValsObj[event.target.id] = parseInt(event.target.value);
 
@@ -51,7 +46,7 @@ sliderWrapper.on("input", "input[type='range']", event => {
 // USER CLICKS RECORD BUTTON
 // =========================
 recBtn.on('click', () => {
-    console.log(eqValsObj);
+
     // CAPTURE MICROPHONE INPUT
     navigator.mediaDevices.getUserMedia({ audio: true })
         .then(stream => {
@@ -160,7 +155,7 @@ recBtn.on('click', () => {
                 const filterArr = [filter1, filter2, filter3, filter4, filter5, filter6, filter7]
 
                 filterArr.forEach((filter, index) => {
-                    console.log(index)
+
                     let hertz,
                         gainVal;
 
@@ -200,78 +195,22 @@ recBtn.on('click', () => {
                             gainVal=eqValsObj.hz8000;
                             break;
                     }
+                    // CONNECT THE MediaElementAudioSourceNode TO THE FILTERS/PANNERS
+                    // AND THE FILTERS/PANNERS TO THE DESTINATION  
                     audioSource.connect(filter);
                     filter.connect(context.destination);
+                    // CONFIGURE FILTERS
                     filter.type = 'peaking';
                     filter.frequency.value = hertz;
                     filter.Q.value = 100;
                     filter.gain.value = gainVal;
                 })
-                // CONNECT THE MediaElementAudioSourceNode TO THE FILTERS/PANNERS
-                // AND THE FILTERS/PANNERS TO THE DESTINATION  
-                // audioSource.connect(filter1);
-                // audioSource.connect(filter2);
-                // audioSource.connect(filter3);
-                // audioSource.connect(filter4);
-                // audioSource.connect(filter5);
-                // audioSource.connect(filter6);
-                // audioSource.connect(filter7);
 
                 audioSource.connect(rightEar);
                 audioSource.connect(leftEar);
 
-                // filter1.connect(context.destination);
-                // filter2.connect(context.destination);
-                // filter3.connect(context.destination);
-                // filter4.connect(context.destination);
-                // filter5.connect(context.destination);
-                // filter6.connect(context.destination);
-                // filter7.connect(context.destination);
-
                 rightEar.connect(context.destination);
                 leftEar.connect(context.destination);
-
-                // const freqArr = [125, 250, 500, 1000, 2000, 4000, 8000];
-
-                // freqArr.forEach(freq => {
-
-                // })
-
-                // CONFIGURE FILTERS
-                // filter1.type = 'peaking';
-                // filter1.frequency.value = 125;
-                // filter1.Q.value = 100;
-                // filter1.gain.value = eqValsObj.hz125;
-
-                // filter2.type = 'peaking';
-                // filter2.frequency.value = 250;
-                // filter2.Q.value = 100;
-                // filter2.gain.value = eqValsObj.hz250;
-
-                // filter3.type = 'peaking';
-                // filter3.frequency.value = 500;
-                // filter3.Q.value = 100;
-                // filter3.gain.value = eqValsObj.hz500;
-
-                // filter4.type = 'peaking';
-                // filter4.frequency.value = 1000;
-                // filter4.Q.value = 100;
-                // filter4.gain.value = eqValsObj.hz1000;
-
-                // filter5.type = 'peaking';
-                // filter5.frequency.value = 2000;
-                // filter5.Q.value = 100;
-                // filter5.gain.value = eqValsObj.hz2000;
-
-                // filter6.type = 'peaking';
-                // filter6.frequency.value = 4000;
-                // filter6.Q.value = 100;
-                // filter6.gain.value = eqValsObj.hz4000;
-
-                // filter7.type = 'peaking';
-                // filter7.frequency.value = 8000;
-                // filter7.Q.value = 100;
-                // filter7.gain.value = eqValsObj.hz8000;
 
                 // console.log("filter after:/n", "=======================");
                 // console.log(filter1, filter2, filter7);
@@ -491,7 +430,6 @@ const chartOptions = {
             else e.target.style.cursor = 'default'
         }
     }
-
 }
 // DATA OBJECT FOR CHART
 const chartData = {
@@ -543,10 +481,15 @@ $('#clear-btn').on('click', () => {
     // RESET SLIDER VALUES TO 0
     $('.eq-slider').val(0);
 
+    // RESET EAR SELECT BUTTONS AND earClick VALUE
     $("#r-ear-btn").css("background", "rgb(125, 0, 0)");
     $("#l-ear-btn").css("background", "rgb(0, 0, 125)");
     earClick=undefined;
 
-    chart.update()
+    // RESET db OUTPUT DIVs
+    $('.val-output').text("0db");
+
+    // UPDATE CHART
+    chart.update();
 })
 
