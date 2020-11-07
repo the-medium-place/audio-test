@@ -20,7 +20,6 @@ const eqValsObj = {
 // LISTEN TO EAR SELECTION BUTTONS TO FLIP THE SWITCH
 $("#l-ear-btn").on('click', event => {
     $("#l-ear-btn").css("background", "salmon");
-
     $("#r-ear-btn").css("background", "rgb(125, 0, 0)")
     // set earClick to false to activate left ear datapoints
     earClick=false;
@@ -319,15 +318,11 @@ const chartOptions = {
     // CAPTURE CLICK LOCATION ON CHART TO ADD NEW DATA TO DATASET ARRAY?
     // =============================================================================
     onClick: function(element, dataAtClick){
-        // console.log(element, dataAtClick);
         let scaleRef,
             valueX,
             valueY;
-            // console.log(this.scales.scaleKey);
         for (var scaleKey in this.scales) {
             scaleRef = this.scales[scaleKey];
-            // console.log(scaleRef);
-            // console.log(scaleRef.isHorizontal())
             if (scaleRef.isHorizontal() && scaleKey == 'x-axis-0') {
                 valueX = scaleRef.getValueForPixel(element.offsetX);
                 // console.log(valueX); // index of value in dataset (hz level)
@@ -338,8 +333,65 @@ const chartOptions = {
         }
 
         // IF earClick IS true, SET POINTS FOR RIGHT EAR, ELSE SET POINTS FOR LEFT EAR
-        (earClick) ? this.data.datasets[0].data.splice(valueX, 1, Math.floor(valueY)) : this.data.datasets[1].data.splice(valueX, 1, Math.floor(valueY));
+        if(earClick===true){
+            this.data.datasets[0].data.splice(valueX, 1, Math.floor(valueY)) 
+        } else if(earClick===false){
+            this.data.datasets[1].data.splice(valueX, 1, Math.floor(valueY));
+        } 
 
+        // IF DATA PRESENT AT SAME INDEX FOR BOTH DATASETS, SET SLIDER TO AVERAGE VALUE
+        let avgVal;
+        if (this.data.datasets[0].data[valueX] && this.data.datasets[1].data[valueX]){
+            avgVal = Math.floor((this.data.datasets[0].data[valueX] + this.data.datasets[1].data[valueX]) / 2);
+        }
+
+        switch (valueX) {
+            case 0:
+                $('#hz125').val((-avgVal) + 25)
+                eqValsObj.hz125 = (-avgVal) + 25
+                $(`.val-output[data-hertz="125"]`).text((-avgVal) + 25 + 'db')
+
+                break;
+            case 1:
+                $('#hz250').val((-avgVal) + 25)
+                eqValsObj.hz250 = (-avgVal) + 25
+                $(`.val-output[data-hertz="250"]`).text((-avgVal) + 25 + 'db')
+
+                break;
+            case 2:
+                $('#hz500').val((-avgVal) + 25)
+                eqValsObj.hz500 = (-avgVal) + 25
+                $(`.val-output[data-hertz="500"]`).text((-avgVal) + 25 + 'db')
+
+                break;
+            case 3:
+                $('#hz1000').val((-avgVal) + 25)
+                eqValsObj.hz1000 = (-avgVal) + 25
+                $(`.val-output[data-hertz="1000"]`).text((-avgVal) + 25 + 'db')
+
+                break;
+            case 4:
+                $('#hz2000').val((-avgVal) + 25)
+                eqValsObj.hz2000 = (-avgVal) + 25
+                $(`.val-output[data-hertz="2000"]`).text((-avgVal) + 25 + 'db')
+
+                break;
+            case 5:
+                $('#hz4000').val((-avgVal) + 25)
+                eqValsObj.hz4000 = (-avgVal) + 25
+                $(`.val-output[data-hertz="4000"]`).text((-avgVal) + 25 + 'db')
+
+                break;
+            case 6:
+                $('#hz8000').val((-avgVal) + 25)
+                eqValsObj.hz8000 = (-avgVal) + 25
+                $(`.val-output[data-hertz="8000"]`).text((-avgVal) + 25 + 'db')
+
+                break;
+            default:
+                break;
+        }
+        // UPDATE CHART WITH NEW ADDED VALUES
         this.update();
     },
     responsive: true,
@@ -383,42 +435,43 @@ const chartOptions = {
                 $('#hz125').val((-avgVal) + 25)
                 eqValsObj.hz125 = (-avgVal) + 25
                 $('.hz125').text((-avgVal) + 25 + 'db')
+                $(`.val-output[data-hertz="125"]`).text((-avgVal) + 25 + 'db')
 
                 break;
             case 1:
                 $('#hz250').val((-avgVal) + 25)
                 eqValsObj.hz250 = (-avgVal) + 25
-                $('.hz250').text((-avgVal) + 25 + 'db')
+                $(`.val-output[data-hertz="250"]`).text((-avgVal) + 25 + 'db')
 
                 break;
             case 2:
                 $('#hz500').val((-avgVal) + 25)
                 eqValsObj.hz500 = (-avgVal) + 25
-                $('.hz500').text((-avgVal) + 25 + 'db')
+                $(`.val-output[data-hertz="500"]`).text((-avgVal) + 25 + 'db')
 
                 break;
             case 3:
                 $('#hz1000').val((-avgVal) + 25)
                 eqValsObj.hz1000 = (-avgVal) + 25
-                $('.hz1000').text((-avgVal) + 25 + 'db')
+                $(`.val-output[data-hertz="1000"]`).text((-avgVal) + 25 + 'db')
 
                 break;
             case 4:
                 $('#hz2000').val((-avgVal) + 25)
                 eqValsObj.hz2000 = (-avgVal) + 25
-                $('.hz2000').text((-avgVal) + 25 + 'db')
+                $(`.val-output[data-hertz="2000"]`).text((-avgVal) + 25 + 'db')
 
                 break;
             case 5:
                 $('#hz4000').val((-avgVal) + 25)
                 eqValsObj.hz4000 = (-avgVal) + 25
-                $('.hz4000').text((-avgVal) + 25 + 'db')
+                $(`.val-output[data-hertz="4000"]`).text((-avgVal) + 25 + 'db')
 
                 break;
             case 6:
                 $('#hz8000').val((-avgVal) + 25)
                 eqValsObj.hz8000 = (-avgVal) + 25
-                $('.hz8000').text((-avgVal) + 25 + 'db')
+                $(`.val-output[data-hertz="8000"]`).text((-avgVal) + 25 + 'db')
 
                 break;
             default:
@@ -490,34 +543,10 @@ $('#clear-btn').on('click', () => {
     // RESET SLIDER VALUES TO 0
     $('.eq-slider').val(0);
 
+    $("#r-ear-btn").css("background", "rgb(125, 0, 0)");
+    $("#l-ear-btn").css("background", "rgb(0, 0, 125)");
+    earClick=undefined;
+
     chart.update()
 })
 
-// ACTIVATION BUTTON TO CREATE RANDOM DATAPOINT AT SET HZ LEVEL
-// ============================================================
-const actButtonWrapper = $('.act-wrapper');
-actButtonWrapper.on('click', '.act-btn', event => {
-    // console.log(event.target.dataset.hertz);
-    const leftEarDatasetArr = chart.data.datasets[1].data;
-    const rightEarDatasetArr = chart.data.datasets[0].data;
-    const randomNum = Math.floor(Math.random() * 130 - 10);
-    const dataIndex = event.target.dataset.index;
-    const dataEar = event.target.dataset.ear
-
-    dataEar === 'left' ? leftEarDatasetArr.splice(dataIndex, 1, randomNum) : rightEarDatasetArr.splice(dataIndex, 1, randomNum);
-
-    chart.update();
-})
-
-
-// TESTING CLICK TO ADD DATA FUNCTIONALITY
-// $("#myChart").on('click', (e) => {
-    // console.log(e.clientY)
-    // GET VALUE BY PRESSING ON DATASET
-    // const value = chart.scales['x-axis-0'].getValueForPixel(e.clientY)
-    // .getValueForPixel(e.clientY);
-    // console.log(value);
-    // console.log(chart.getElementAtEvent(e))
-    // chart.data.datasets[0].push(value);
-    // chart.update();
-// })
