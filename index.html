@@ -15,9 +15,14 @@
 </head>
 
 <body>
+
+    <!-- JUMBOTRON -->
     <div class="jumbotron jumbotron-fluid update-space">
         <div class="container">
             <h1 class="display-4">Last Update:</h1>
+            <p class="lead">11/6 -- distracting myself from the election by doing some work on this... <br>
+             - added functionality to the chart: by selecting an ear with the buttons you can now click directly on the chart to add data at the point of the click. This should make adding data about as user friendly as i can get it right now. Might be able to improve with React later
+            </p>
             <p class="lead">11/1 -- connected the chart values to the sliders - when the user drags the chart values
                 into place, it auto adjust the sliders as long as there is both R and L value at that frequency on the
                 chart.<br><br>Made the chart a separate 'modal' window that pops up when the button is pressed below</p>
@@ -31,32 +36,42 @@
             <p class="lead">Also, reformatted to be <strong>usable on mobile</strong>!!</p>
         </div>
     </div>
+
+    <!-- PAGE CONTENT CONTAINER -->
     <div class="container">
+
         <!-- RECORD CONTROL BUTTONS -->
         <div class="row btn-box">
-            <button class="btn btn-danger"id="record-btn">RECORD</button>
-            <button class="btn btn-primary"id="stop-btn">STOP REC</button>
-            <button class="btn btn-success"id="play-btn">PLAY</button>
-        </div>
+            <button class="btn btn-danger" id="record-btn">RECORD</button>
+            <button class="btn btn-primary" id="stop-btn">STOP REC</button>
+            <button class="btn btn-success" id="play-btn">PLAY</button>
+        </div><!-- /.btn-box -->
 
         <!-- POSSIBLE RECORDING TIMER -->
         <div class="row">
             <p class="rec-timer"></p>
-        </div>
+        </div><!-- /TIMER OUTPUT -->
+
+        <!-- TEST DIV FOR OSCILLOSCOPE -->
+        <!-- <div class="row">
+            <canvas class="col-12" id="oscilloscope">Your browser does not support canvas element</canvas>
+        </div> -->
 
         <!-- HEARING CHART CANVAS MODAL BUTTON -->
         <div class="row text-center d-flex justify-content-center">
             <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal">
                 LAUNCH EAR CHART
             </button>
-        </div>
+        </div><!-- /MODAL BUTTON -->
+
         <!-- HEARING CHAR MODAL WINDOW -->
         <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
             aria-hidden="true">
             <div class="modal-dialog modal-xl" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title" id="exampleModalLabel">Make this chart look like the one from the audiologist:</h5>
+                        <h5 class="modal-title" id="exampleModalLabel">Make this chart look like the one from the
+                            audiologist:</h5>
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
                         </button>
@@ -66,85 +81,107 @@
                             <div class="row">
                                 <canvas id="myChart">Your browser does not support canvas element.</canvas>
                             </div>
+                            <!-- <div class="row act-wrapper">
+                                <div class="col text-center act-box">
+                                    <button class="act-btn" data-index="0" data-ear="left" data-hertz="125">add
+                                        L</button>
+                                    <button class="act-btn" data-index="0" data-ear="right" data-hertz="125">add
+                                        R</button>
+
+                                </div>
+                                <div class="col text-center act-box">
+                                    <button class="act-btn" data-index="1" data-ear="left" data-hertz="250">add
+                                        L</button>
+                                    <button class="act-btn" data-index="1" data-ear="right" data-hertz="250">add
+                                        R</button>
+
+                                </div>
+                                <div class="col text-center act-box">
+                                    <button class="act-btn" data-index="2" data-ear="left" data-hertz="500">add
+                                        L</button>
+                                    <button class="act-btn" data-index="2" data-ear="right" data-hertz="500">add
+                                        R</button>
+
+                                </div>
+                                <div class="col text-center act-box">
+                                    <button class="act-btn" data-index="3" data-ear="left" data-hertz="1000">add
+                                        L</button>
+                                    <button class="act-btn" data-index="3" data-ear="right" data-hertz="1000">add
+                                        R</button>
+
+                                </div>
+                                <div class="col text-center act-box">
+                                    <button class="act-btn" data-index="4" data-ear="left" data-hertz="2000">add
+                                        L</button>
+                                    <button class="act-btn" data-index="4" data-ear="right" data-hertz="2000">add
+                                        R</button>
+
+                                </div>
+                                <div class="col text-center act-box">
+                                    <button class="act-btn" data-index="5" data-ear="left" data-hertz="4000">add
+                                        L</button>
+                                    <button class="act-btn" data-index="5" data-ear="right" data-hertz="4000">add
+                                        R</button>
+
+                                </div>
+                                <div class="col text-center act-box">
+                                    <button class="act-btn" data-index="6" data-ear="left" data-hertz="8000">add
+                                        L</button>
+                                    <button class="act-btn" data-index="6" data-ear="right" data-hertz="8000">add
+                                        R</button>
+
+                                </div>
+                            </div> -->
                             <div class="row act-wrapper">
-                                <div class="col text-center act-box">
-                                    <button class="act-btn" data-index="0" data-ear="left" data-hertz="125">add L</button>
-                                    <button class="act-btn" data-index="0" data-ear="right" data-hertz="125">add R</button>
-        
+                                <div class="col-3"><strong>Select an ear with these buttons, then click the chart to add data!</strong></div>
+                                <div class="col-6 d-flex justify-content-around">
+                                    <button id="l-ear-btn" class="btn">Left Ear</button>
+                                    <button id="r-ear-btn" class="btn">Right Ear</button>
                                 </div>
-                                <div class="col text-center act-box">
-                                    <button class="act-btn" data-index="1" data-ear="left" data-hertz="250">add L</button>
-                                    <button class="act-btn" data-index="1" data-ear="right" data-hertz="250">add R</button>
-        
-                                </div>
-                                <div class="col text-center act-box">
-                                    <button class="act-btn" data-index="2" data-ear="left" data-hertz="500">add L</button>
-                                    <button class="act-btn" data-index="2" data-ear="right" data-hertz="500">add R</button>
-        
-                                </div>
-                                <div class="col text-center act-box">
-                                    <button class="act-btn" data-index="3" data-ear="left" data-hertz="1000">add L</button>
-                                    <button class="act-btn" data-index="3" data-ear="right" data-hertz="1000">add R</button>
-        
-                                </div>
-                                <div class="col text-center act-box">
-                                    <button class="act-btn" data-index="4" data-ear="left" data-hertz="2000">add L</button>
-                                    <button class="act-btn" data-index="4" data-ear="right" data-hertz="2000">add R</button>
-        
-                                </div>
-                                <div class="col text-center act-box">
-                                    <button class="act-btn" data-index="5" data-ear="left" data-hertz="4000">add L</button>
-                                    <button class="act-btn" data-index="5" data-ear="right" data-hertz="4000">add R</button>
-        
-                                </div>
-                                <div class="col text-center act-box">
-                                    <button class="act-btn" data-index="6" data-ear="left" data-hertz="8000">add L</button>
-                                    <button class="act-btn" data-index="6" data-ear="right" data-hertz="8000">add R</button>
-        
-                                </div>
-                            </div>   
+                                <div class="col-3"></div>
+                            </div>
                         </div>
                     </div>
                     <div class="modal-footer" style="justify-content: space-between;">
                         <button type="button" class="btn btn-danger" id="clear-btn">Clear chart</button>
                         <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
                     </div>
-                    
+
                 </div>
             </div>
-        </div>
+        </div><!-- /.modal -->
 
         <!-- SLIDER HZ LABELS -->
         <div class="row text-center slider-labels">
-            <div class="col hz-box">
+            <div class="col hz-box text-center">
                 <p class="hz">125hz</p>
-                <p class="val-output hz125"></p>
+                <p class="val-output" data-hertz="125">0db</p>
             </div>
-            <div class="col hz-box">
+            <div class="col hz-box text-center">
                 <p class="hz">250hz</p>
-                <p class="val-output hz250"></p>
+                <p class="val-output" data-hertz="250">0db</p>
             </div>
-            <div class="col hz-box">
+            <div class="col hz-box text-center">
                 <p class="hz">500hz</p>
-                <p class="val-output hz500"></p>
+                <p class="val-output" data-hertz="500">0db</p>
             </div>
-            <div class="col hz-box">
+            <div class="col hz-box text-center">
                 <p class="hz">1000hz</p>
-                <p class="val-output hz1000"></p>
+                <p class="val-output" data-hertz="1000">0db</p>
             </div>
-            <div class="col hz-box">
+            <div class="col hz-box text-center">
                 <p class="hz">2000hz</p>
-                <p class="val-output hz2000"></p>
+                <p class="val-output" data-hertz="2000">0db</p>
             </div>
-            <div class="col hz-box">
+            <div class="col hz-box text-center">
                 <p class="hz">4000hz</p>
-                <p class="val-output hz4000"></p>
+                <p class="val-output" data-hertz="4000">0db</p>
             </div>
-            <div class="col hz-box">
+            <div class="col hz-box text-center">
                 <p class="hz">8000hz</p>
-                <p class="val-output hz8000"></p>
+                <p class="val-output" data-hertz="8000">0db</p>
             </div>
-        </div>
+        </div><!-- /.slider-labels -->
 
         <!-- EQ RANGE SLIDERS -->
         <div class="row d-flex slider-wrapper">
@@ -176,8 +213,8 @@
                 <input type="range" data-index="6" min="-120" max="120" step="1" value="0" class="eq-slider"
                     data-hertz="8000" id="hz8000" />
             </div>
-        </div>
-    </div>
+        </div><!-- /.slider-wrapper -->
+    </div><!-- /.container -->
 
     <!-- CHARTJS CDN -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script>

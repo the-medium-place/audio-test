@@ -59,19 +59,24 @@ input[type="range"] {
  .val-output {
      height: 1.3rem;
  }
-/* 
- #record-btn {
-     background: red;
+
+ #l-ear-btn {
+    background: rgb(0, 0, 125);
+    color: white;
  }
 
- #stop-btn {
-     background: blue;
-     color: azure;
+ #l-ear-btn:hover {
+     background: rgb(0, 0, 200);
  }
 
- #play-btn {
-     background: green;
- } */
+ #r-ear-btn {
+    background: rgb(125, 0, 0);
+    color: white;
+ }
+
+ #r-ear-btn:hover {
+     background: rgb(200, 0, 0);
+ }
 
  @media only screen and (max-width: 1000px) {
     .hz, .val-output, .act-box {

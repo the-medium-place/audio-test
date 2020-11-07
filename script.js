@@ -2,6 +2,9 @@ const recBtn = $("#record-btn");
 const stopBtn = $("#stop-btn");
 const playBtn = $('#play-btn');
 
+// FLAG VARIABLE FOR SETTING EAR VALUES ON CHART
+let earClick; // true for right ear, false for left ear
+
 // CREATE OBJECT TO HOUSE EQ VALUES
 const eqValsObj = {
     hz125: 0,
@@ -13,23 +16,25 @@ const eqValsObj = {
     hz8000: 0
 }
 
-//
-// $('#myModal').on('shown.bs.modal', function () {
-//     $('#myInput').trigger('focus')
-//   })
 
+// LISTEN TO EAR SELECTION BUTTONS TO FLIP THE SWITCH
+$("#l-ear-btn").on('click', event => {
+    $("#l-ear-btn").css("background", "salmon");
+
+    $("#r-ear-btn").css("background", "rgb(125, 0, 0)")
+    // set earClick to false to activate left ear datapoints
+    earClick=false;
+})
+$("#r-ear-btn").on('click', event => {
+    $("#r-ear-btn").css("background", "salmon");
+    $("#l-ear-btn").css("background", "rgb(0, 0, 125)")
+    // set earClick to true to activate right ear datapoints
+    earClick=true;
+})
 
 // LISTEN FOR CHANGES TO SLIDERS AND LOG RESULTING VALUE
 // =====================================================
 const sliderWrapper = $('.slider-wrapper')
-// capture each individual slider and organize by connected dataset index no.
-const sliderIndex0 = $('#hz125');
-const sliderIndex1 = $('#hz250');
-const sliderIndex2 = $('#hz500');
-const sliderIndex3 = $('#hz1000');
-const sliderIndex4 = $('#hz2000');
-const sliderIndex5 = $('#hz4000');
-const sliderIndex6 = $('#hz8000');
 
 // ADJUST FILTER VALUES USING SLIDERS
 // ==================================
@@ -40,7 +45,7 @@ sliderWrapper.on("input", "input[type='range']", event => {
     console.log("testing data attribute output: \n", "====================");
     console.log(event.target.dataset.hertz)
 
-    $('.' + event.target.id).text(event.target.value + 'db');
+    $(`.val-output[data-hertz="${event.target.dataset.hertz}"]`).text(event.target.value + 'db')
 
 })
 
@@ -85,12 +90,23 @@ recBtn.on('click', () => {
                 // CREATE AUDIO PROCESSING CONTEXT AND FILTERS
                 const context = new AudioContext();
                 const audioSource = context.createMediaElementSource(audio);
+
+                // ANALYSER WILL BE USED FOR VISUALIZATIONS AND INFO OUTPUT I THINK
                 const analyser = context.createAnalyser();
 
-                analyser.fftSize = 2048;
-                const bufferLength = analyser.frequencyBinCount;
-                const dataArray = new Uint8Array(bufferLength);
-                analyser.getByteTimeDomainData(dataArray)
+                // SEPARATE STEREOPANNERS FOR EACH SIDE
+                const rightEar = context.createStereoPanner();
+                const leftEar = context.createStereoPanner();
+                // SET PANNERS TO RESPECTIVE SIDES
+                rightEar.pan.value = 1 // full right side pan
+                leftEar.pan.value = -1 // full left side pan
+
+                // analyser.fftSize = 2048;
+                // const bufferLength = analyser.frequencyBinCount;
+                // const dataArray = new Uint8Array(bufferLength);
+                // analyser.getByteTimeDomainData(dataArray);
+                // analyser.minDecibels = -40;
+                // analyser.maxDecibels = 120;
 
                 // GET CANVAS FOR ISCILLOSCOPE
                 // const canvas = document.getElementById('oscilloscope');
@@ -99,6 +115,7 @@ recBtn.on('click', () => {
                 // draw an oscilloscope of the current audio source
 
                 // function draw() {
+                //     // console.log(dataArray);
 
                 //     requestAnimationFrame(draw);
 
@@ -141,61 +158,125 @@ recBtn.on('click', () => {
                 const filter6 = context.createBiquadFilter();
                 const filter7 = context.createBiquadFilter();
 
-                // CONNECT FILTERS TO AUDIO DATA
-                audioSource.connect(filter1);
-                audioSource.connect(filter2);
-                audioSource.connect(filter3);
-                audioSource.connect(filter4);
-                audioSource.connect(filter5);
-                audioSource.connect(filter6);
-                audioSource.connect(filter7);
+                const filterArr = [filter1, filter2, filter3, filter4, filter5, filter6, filter7]
 
-                filter1.connect(context.destination);
-                filter2.connect(context.destination);
-                filter3.connect(context.destination);
-                filter4.connect(context.destination);
-                filter5.connect(context.destination);
-                filter6.connect(context.destination);
-                filter7.connect(context.destination);
+                filterArr.forEach((filter, index) => {
+                    console.log(index)
+                    let hertz,
+                        gainVal;
+
+                    switch (index){
+                        case 0:
+                            hertz=125;
+                            gainVal=eqValsObj.hz125;
+                            break;
+
+                        case 1:
+                            hertz=250;
+                            gainVal=eqValsObj.hz250;
+                            break;
+                
+                        case 2:
+                            hertz=500;
+                            gainVal=eqValsObj.hz500;
+                            break;
+
+                        case 3:
+                            hertz=1000;
+                            gainVal=eqValsObj.hz1000;
+                            break;
+
+                        case 4:
+                            hertz=2000;
+                            gainVal=eqValsObj.hz2000;
+                            break;
+
+                        case 5:
+                            hertz=4000;
+                            gainVal=eqValsObj.hz4000;
+                            break;
+
+                        default:
+                            hertz=8000;
+                            gainVal=eqValsObj.hz8000;
+                            break;
+                    }
+                    audioSource.connect(filter);
+                    filter.connect(context.destination);
+                    filter.type = 'peaking';
+                    filter.frequency.value = hertz;
+                    filter.Q.value = 100;
+                    filter.gain.value = gainVal;
+                })
+                // CONNECT THE MediaElementAudioSourceNode TO THE FILTERS/PANNERS
+                // AND THE FILTERS/PANNERS TO THE DESTINATION  
+                // audioSource.connect(filter1);
+                // audioSource.connect(filter2);
+                // audioSource.connect(filter3);
+                // audioSource.connect(filter4);
+                // audioSource.connect(filter5);
+                // audioSource.connect(filter6);
+                // audioSource.connect(filter7);
+
+                audioSource.connect(rightEar);
+                audioSource.connect(leftEar);
+
+                // filter1.connect(context.destination);
+                // filter2.connect(context.destination);
+                // filter3.connect(context.destination);
+                // filter4.connect(context.destination);
+                // filter5.connect(context.destination);
+                // filter6.connect(context.destination);
+                // filter7.connect(context.destination);
+
+                rightEar.connect(context.destination);
+                leftEar.connect(context.destination);
+
+                // const freqArr = [125, 250, 500, 1000, 2000, 4000, 8000];
+
+                // freqArr.forEach(freq => {
+
+                // })
 
                 // CONFIGURE FILTERS
-                filter1.type = 'peaking';
-                filter1.frequency.value = 125;
-                filter1.Q.value = 100;
-                filter1.gain.value = eqValsObj.hz125;
+                // filter1.type = 'peaking';
+                // filter1.frequency.value = 125;
+                // filter1.Q.value = 100;
+                // filter1.gain.value = eqValsObj.hz125;
 
-                filter2.type = 'peaking';
-                filter2.frequency.value = 250;
-                filter2.Q.value = 100;
-                filter2.gain.value = eqValsObj.hz250;
+                // filter2.type = 'peaking';
+                // filter2.frequency.value = 250;
+                // filter2.Q.value = 100;
+                // filter2.gain.value = eqValsObj.hz250;
 
-                filter3.type = 'peaking';
-                filter3.frequency.value = 500;
-                filter3.Q.value = 100;
-                filter3.gain.value = eqValsObj.hz500;
+                // filter3.type = 'peaking';
+                // filter3.frequency.value = 500;
+                // filter3.Q.value = 100;
+                // filter3.gain.value = eqValsObj.hz500;
 
-                filter4.type = 'peaking';
-                filter4.frequency.value = 1000;
-                filter4.Q.value = 100;
-                filter4.gain.value = eqValsObj.hz1000;
+                // filter4.type = 'peaking';
+                // filter4.frequency.value = 1000;
+                // filter4.Q.value = 100;
+                // filter4.gain.value = eqValsObj.hz1000;
 
-                filter5.type = 'peaking';
-                filter5.frequency.value = 2000;
-                filter5.Q.value = 100;
-                filter5.gain.value = eqValsObj.hz2000;
+                // filter5.type = 'peaking';
+                // filter5.frequency.value = 2000;
+                // filter5.Q.value = 100;
+                // filter5.gain.value = eqValsObj.hz2000;
 
-                filter6.type = 'peaking';
-                filter6.frequency.value = 4000;
-                filter6.Q.value = 100;
-                filter6.gain.value = eqValsObj.hz4000;
+                // filter6.type = 'peaking';
+                // filter6.frequency.value = 4000;
+                // filter6.Q.value = 100;
+                // filter6.gain.value = eqValsObj.hz4000;
 
-                filter7.type = 'peaking';
-                filter7.frequency.value = 8000;
-                filter7.Q.value = 100;
-                filter7.gain.value = eqValsObj.hz8000;
+                // filter7.type = 'peaking';
+                // filter7.frequency.value = 8000;
+                // filter7.Q.value = 100;
+                // filter7.gain.value = eqValsObj.hz8000;
 
-                console.log("filter after:/n", "=======================");
-                console.log(filter1, filter2, filter7);
+                // console.log("filter after:/n", "=======================");
+                // console.log(filter1, filter2, filter7);
+                // console.log(analyser);
                 // draw();
 
             })
@@ -207,186 +288,192 @@ recBtn.on('click', () => {
         })
 })
 
+// =============
 // CHARTJS SETUP
 // =============
 const ctx = document.getElementById('myChart').getContext('2d');
-const chart = new Chart(ctx, {
-    // The type of chart we want to create
-    type: 'line',
 
-    // The data for our dataset
-    data: {
-        labels: ['125hz', '250hz', '500hz', '1000hz', '2000hz', '4000hz', '8000hz'],
-        datasets: [
-            {
-                label: 'Right Ear',
-                borderColor: 'red',
-                fill: false,
-                pointRadius: 10,
-                pointHoverRadius: 15,
-                data: [null, null, null, null, null, null, null],
-                pointStyle: 'circle',
-                lineTension: 0
-            },
-            {
-                label: 'Left Ear',
-                fill: false,
-                borderColor: 'blue',
-                data: [null, null, null, null, null, null, null],
-                pointRadius: 10,
-                pointHoverRadius: 15,
-                pointStyle: 'crossRot',
-                lineTension: 0
-            }
-        ]
+// OPTIONS OBJECT FOR CHART
+const chartOptions = {
+    // tooltips: {
+    //     callbacks: {
+    //         label: function(context) {
+    //             // var label = context["yLabel"] || '';
+    //             // return label + 'db';
+    //             // if (label) {
+    //             //     label += ': ';
+    //             // }
+    //             // if (!isNaN(context.dataPoint.y)) {
+    //             //     label += new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(context.dataPoint.y);
+    //             // }
+    //             // return label;
+    //         }
+    //     }
+    // },
+
+    legend: {
+        labels: {
+            usePointStyle: true,
+        }
     },
-
-    // Configuration options go here
-    options: {
-        // tooltips: {
-        //     callbacks: {
-        //         label: function(context) {
-        //             // var label = context["yLabel"] || '';
-        //             // return label + 'db';
-        //             // if (label) {
-        //             //     label += ': ';
-        //             // }
-        //             // if (!isNaN(context.dataPoint.y)) {
-        //             //     label += new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(context.dataPoint.y);
-        //             // }
-        //             // return label;
-        //         }
-        //     }
-        // },
-
-        legend: {
-            labels: {
-                usePointStyle: true,
-            }
-        },
-        // TODO: IDEA: CAPTURE CLICK LOCATION ON CHART TO ADD NEW DATA TO DATASET ARRAY?
-        // =============================================================================
-        // onClick: function(element, dataAtClick){
-        //     console.log(element, dataAtClick);
-        //     let scaleRef,
-        //         valueX,
-        //         valueY;
-        //         console.log(this.scales.scaleKey);
-        //         // console.log(this.scales['x-axis-0'].longestTextCache.data['125hz'])
-        //     for (var scaleKey in this.scales) {
-        //         scaleRef = this.scales[scaleKey];
-        //         if (scaleRef.isHorizontal() && scaleKey == 'x-axis-1') {
-        //             valueX = scaleRef.getValueForPixel(element.offsetX);
-        //         } else if (scaleKey == 'y-axis-1') {
-        //             valueY = scaleRef.getValueForPixel(element.offsetY);
-        //         }
-        //     }
-        //     this.data.datasets.forEach((dataset) => {
-        //         dataset.data.push({
-        //             x: valueX,
-        //             y: valueY
-        //         });
-        //     });
-        //     this.update();
-        // },
-        responsive: true,
-        scales: {
-            yAxes: [{
-                ticks: {
-                    min: -10,
-                    max: 120,
-                    stepSize: 5,
-                    reverse: true,
-                    callback: function (value, index, values) {
-                        const vals = [-10, 0, 10, 20, 25, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120]
-                        if (vals.includes(value)) return value + 'db';
-
-                    }
-                }
-            }]
-        },
-        dragData: true,
-        dragDataRound: 0,
-        dragOptions: {
-            showTooltip: true
-        },
-        onDragStart: function (e) {
-            //   console.log(e)
-        },
-        onDrag: (e, datasetIndex, index, value) => {
-            e.target.style.cursor = 'grabbing'
-
-            //CAPTURE VALUE OF DRAGGED ELEMENT, INJECT IT INTO THE SLIDERS
-
-            const rightDatasetValAtIndex = chart.data.datasets[0].data[index];
-            const leftDatasetValAtIndex = chart.data.datasets[1].data[index];
-            let avgVal;
-            if (leftDatasetValAtIndex && rightDatasetValAtIndex) {
-                avgVal = Math.round((leftDatasetValAtIndex + rightDatasetValAtIndex) / 2) // average of two values at single hz level
-            }
-
-            switch (index) {
-                case 0:
-                    sliderIndex0.val((-avgVal) + 25)
-                    eqValsObj.hz125 = (-avgVal) + 25
-                    $('.hz125').text((-avgVal) + 25 + 'db')
-
-                    break;
-                case 1:
-                    sliderIndex1.val((-avgVal) + 25)
-                    eqValsObj.hz250 = (-avgVal) + 25
-                    $('.hz250').text((-avgVal) + 25 + 'db')
-
-                    break;
-                case 2:
-                    sliderIndex2.val((-avgVal) + 25)
-                    eqValsObj.hz500 = (-avgVal) + 25
-                    $('.hz500').text((-avgVal) + 25 + 'db')
-
-                    break;
-                case 3:
-                    sliderIndex3.val((-avgVal) + 25)
-                    eqValsObj.hz1000 = (-avgVal) + 25
-                    $('.hz1000').text((-avgVal) + 25 + 'db')
-
-                    break;
-                case 4:
-                    sliderIndex4.val((-avgVal) + 25)
-                    eqValsObj.hz2000 = (-avgVal) + 25
-                    $('.hz2000').text((-avgVal) + 25 + 'db')
-
-                    break;
-                case 5:
-                    sliderIndex5.val((-avgVal) + 25)
-                    eqValsObj.hz4000 = (-avgVal) + 25
-                    $('.hz4000').text((-avgVal) + 25 + 'db')
-
-                    break;
-                case 6:
-                    sliderIndex6.val((-avgVal) + 25)
-                    eqValsObj.hz8000 = (-avgVal) + 25
-                    $('.hz8000').text((-avgVal) + 25 + 'db')
-
-                    break;
-                default:
-                    break;
-            }
-            //   console.log(datasetIndex, index, value)
-        },
-        onDragEnd: function (e, datasetIndex, index, value) {
-            e.target.style.cursor = 'default'
-            //   console.log(datasetIndex, index, value)
-            // console.log(value);
-        },
-        hover: {
-            onHover: function (e) {
-                const point = this.getElementAtEvent(e)
-                if (point.length) e.target.style.cursor = 'grab'
-                else e.target.style.cursor = 'default'
+    // CAPTURE CLICK LOCATION ON CHART TO ADD NEW DATA TO DATASET ARRAY?
+    // =============================================================================
+    onClick: function(element, dataAtClick){
+        // console.log(element, dataAtClick);
+        let scaleRef,
+            valueX,
+            valueY;
+            // console.log(this.scales.scaleKey);
+        for (var scaleKey in this.scales) {
+            scaleRef = this.scales[scaleKey];
+            // console.log(scaleRef);
+            // console.log(scaleRef.isHorizontal())
+            if (scaleRef.isHorizontal() && scaleKey == 'x-axis-0') {
+                valueX = scaleRef.getValueForPixel(element.offsetX);
+                // console.log(valueX); // index of value in dataset (hz level)
+            } else if (scaleKey == 'y-axis-0') {
+                valueY = scaleRef.getValueForPixel(element.offsetY);
+                // console.log(valueY); // db value at click
             }
         }
 
+        // IF earClick IS true, SET POINTS FOR RIGHT EAR, ELSE SET POINTS FOR LEFT EAR
+        (earClick) ? this.data.datasets[0].data.splice(valueX, 1, Math.floor(valueY)) : this.data.datasets[1].data.splice(valueX, 1, Math.floor(valueY));
+
+        this.update();
+    },
+    responsive: true,
+    scales: {
+        yAxes: [{
+            ticks: {
+                min: -10,
+                max: 120,
+                stepSize: 5,
+                reverse: true,
+                callback: function (value, index, values) {
+                    const vals = [-10, 0, 10, 20, 25, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120]
+                    if (vals.includes(value)) return value + 'db';
+
+                }
+            }
+        }]
+    },
+    dragData: true,
+    dragDataRound: 0,
+    dragOptions: {
+        showTooltip: true
+    },
+    onDragStart: function (e) {
+        //   console.log(e)
+    },
+    onDrag: (e, datasetIndex, index, value) => {
+        e.target.style.cursor = 'grabbing'
+
+        //CAPTURE VALUE OF DRAGGED ELEMENT, INJECT IT INTO THE SLIDERS
+
+        const rightDatasetValAtIndex = chart.data.datasets[0].data[index];
+        const leftDatasetValAtIndex = chart.data.datasets[1].data[index];
+        let avgVal;
+        if (leftDatasetValAtIndex && rightDatasetValAtIndex) {
+            avgVal = Math.round((leftDatasetValAtIndex + rightDatasetValAtIndex) / 2) // average of two values at single hz level
+        }
+
+        switch (index) {
+            case 0:
+                $('#hz125').val((-avgVal) + 25)
+                eqValsObj.hz125 = (-avgVal) + 25
+                $('.hz125').text((-avgVal) + 25 + 'db')
+
+                break;
+            case 1:
+                $('#hz250').val((-avgVal) + 25)
+                eqValsObj.hz250 = (-avgVal) + 25
+                $('.hz250').text((-avgVal) + 25 + 'db')
+
+                break;
+            case 2:
+                $('#hz500').val((-avgVal) + 25)
+                eqValsObj.hz500 = (-avgVal) + 25
+                $('.hz500').text((-avgVal) + 25 + 'db')
+
+                break;
+            case 3:
+                $('#hz1000').val((-avgVal) + 25)
+                eqValsObj.hz1000 = (-avgVal) + 25
+                $('.hz1000').text((-avgVal) + 25 + 'db')
+
+                break;
+            case 4:
+                $('#hz2000').val((-avgVal) + 25)
+                eqValsObj.hz2000 = (-avgVal) + 25
+                $('.hz2000').text((-avgVal) + 25 + 'db')
+
+                break;
+            case 5:
+                $('#hz4000').val((-avgVal) + 25)
+                eqValsObj.hz4000 = (-avgVal) + 25
+                $('.hz4000').text((-avgVal) + 25 + 'db')
+
+                break;
+            case 6:
+                $('#hz8000').val((-avgVal) + 25)
+                eqValsObj.hz8000 = (-avgVal) + 25
+                $('.hz8000').text((-avgVal) + 25 + 'db')
+
+                break;
+            default:
+                break;
+        }
+        //   console.log(datasetIndex, index, value)
+    },
+    onDragEnd: function (e, datasetIndex, index, value) {
+        e.target.style.cursor = 'default'
+        //   console.log(datasetIndex, index, value)
+        // console.log(value);
+    },
+    hover: {
+        onHover: function (e) {
+            const point = this.getElementAtEvent(e)
+            if (point.length) e.target.style.cursor = 'grab'
+            else e.target.style.cursor = 'default'
+        }
     }
+
+}
+// DATA OBJECT FOR CHART
+const chartData = {
+    labels: ['125hz', '250hz', '500hz', '1000hz', '2000hz', '4000hz', '8000hz'],
+    datasets: [
+        {
+            label: 'Right Ear',
+            borderColor: 'red',
+            fill: false,
+            pointRadius: 10,
+            pointHoverRadius: 15,
+            data: [null, null, null, null, null, null, null],
+            pointStyle: 'circle',
+            lineTension: 0
+        },
+        {
+            label: 'Left Ear',
+            fill: false,
+            borderColor: 'blue',
+            data: [null, null, null, null, null, null, null],
+            pointRadius: 10,
+            pointHoverRadius: 15,
+            pointStyle: 'crossRot',
+            lineTension: 0
+        }
+    ]
+}
+
+const chart = new Chart(ctx, {
+    // The type of chart we want to create
+    type: 'line',
+    // The data for our dataset
+    data: chartData,
+    // Configuration options go here
+    options: chartOptions
 });
 
 // MODAL CLEAR BUTTON
@@ -396,22 +483,16 @@ $('#clear-btn').on('click', () => {
     chart.data.datasets.forEach(dataset => {
         dataset.data = [null, null, null, null, null, null, null]
     })
-    
+
     // RESET eqValsObj VALUES TO 0
     Object.keys(eqValsObj).forEach(key => eqValsObj[key] = 0)
 
     // RESET SLIDER VALUES TO 0
-    sliderIndex0.val(0);
-    sliderIndex1.val(0);
-    sliderIndex2.val(0);
-    sliderIndex3.val(0);
-    sliderIndex4.val(0);
-    sliderIndex5.val(0);
-    sliderIndex6.val(0);
+    $('.eq-slider').val(0);
 
     chart.update()
 })
-// console.log($('.eq-slider'))
+
 // ACTIVATION BUTTON TO CREATE RANDOM DATAPOINT AT SET HZ LEVEL
 // ============================================================
 const actButtonWrapper = $('.act-wrapper');
@@ -427,3 +508,16 @@ actButtonWrapper.on('click', '.act-btn', event => {
 
     chart.update();
 })
+
+
+// TESTING CLICK TO ADD DATA FUNCTIONALITY
+// $("#myChart").on('click', (e) => {
+    // console.log(e.clientY)
+    // GET VALUE BY PRESSING ON DATASET
+    // const value = chart.scales['x-axis-0'].getValueForPixel(e.clientY)
+    // .getValueForPixel(e.clientY);
+    // console.log(value);
+    // console.log(chart.getElementAtEvent(e))
+    // chart.data.datasets[0].push(value);
+    // chart.update();
+// })
